@@ -7,20 +7,25 @@ package module.files;
 
 import java.awt.Container;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 
+import module.communication.NewConnectionListenerThread;
+
 
 public class FileSelectorThread implements Runnable {
 	
 	private Thread t;
 	private String threadName = "FileSelector Thread";
+	
 	private String chunkPath = "/home/nishant/Desktop/COEN317/chunks";
 	private File selectedFile;
 	private long totalChunks;
@@ -65,7 +70,14 @@ public class FileSelectorThread implements Runnable {
     	if (result == JFileChooser.APPROVE_OPTION) {
     		selectedFile = fileChooser.getSelectedFile();
     		System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+    		splitFile();
     	}
+    	else {
+    		System.out.println("File not selected");
+    	}
+    	
+    	new NewConnectionListenerThread(allFileChunksList,sentFileChunksList,processedFileChunksList).start(); 
+    	
 	}
 	
 	private void splitFile(){
@@ -77,6 +89,10 @@ public class FileSelectorThread implements Runnable {
 		FileReader fileReader = null;
 		BufferedReader bufferedReader = null;
 		
+		String extentionRemoved = selectedFile.getName().split("\\.")[0];
+		chunkPath = chunkPath +extentionRemoved +"/";
+		//int i = 0;
+		
 		try {
 			fileReader = new FileReader(selectedFile);
 			bufferedReader = new BufferedReader(fileReader);
@@ -84,8 +100,6 @@ public class FileSelectorThread implements Runnable {
 			while((line = bufferedReader.readLine()) != null) {
 				countLines++;
 				chunkNumer = countLines/20;
-				String extentionRemoved = selectedFile.getName().split("\\.")[0];
-				chunkPath = chunkPath +extentionRemoved +"/";
 				
 				File theDir = new File(chunkPath);
             	// if the directory does not exist, create it
@@ -105,13 +119,18 @@ public class FileSelectorThread implements Runnable {
             	    }
             	}
             	chunkfileContent = chunkfileContent +"\n"+ line;
+            	
             	if(countLines%20 == 0) {
             		
-            		//writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
+            		writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
             		chunkfileContent = "";
+            		//i++;
+            		String chunkFileName = chunkPath +chunkNumer +".txt";
+            		//Add newly created chunk to the list
+            		allFileChunksList.add(new Chunk(chunkFileName,chunkNumer));
             	}
 			}
-			//writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
+			writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
             // Always close files.
             bufferedReader.close();     
 			
@@ -119,9 +138,37 @@ public class FileSelectorThread implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//System.out.println("inside if i:" +i);
 		
+	}
+	
+	private static void writeLineToFile(String line, String path, int chunkNumber) {
 		
-		
+		String chunkNumberString = Integer.toString(chunkNumber);
+		// The name of the file to open.
+        String fileName = path +chunkNumberString +".txt";
+        File file = new File(fileName);
+		try {
+            // Assume default encoding.
+            FileWriter fileWriter = new FileWriter(file);
+
+            // Always wrap FileWriter in BufferedWriter.
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+            
+            // Note that write() does not automatically
+            // append a newline character.
+            bufferedWriter.write(line);
+            bufferedWriter.newLine();
+            // Always close files.
+            bufferedWriter.close();
+        }
+        catch(IOException ex) {
+            System.out.println(
+                "Error writing to file '"
+                + fileName + "'");
+            // Or we could just do this:
+            // ex.printStackTrace();
+        }
 		
 	}
 
