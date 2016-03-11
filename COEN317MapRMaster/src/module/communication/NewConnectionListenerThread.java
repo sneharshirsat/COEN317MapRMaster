@@ -33,6 +33,7 @@ public class NewConnectionListenerThread implements Runnable {
 	private List<Chunk> allFileChunksList;
 	private List<Chunk> sentFileChunksList;
 	private List<Chunk> processedFileChunksList;
+	private List<Chunk> remainingFileChunksList;
 	
 	private static String pythonScriptPath = "/home/nishant/JavaWorkspace/GitRepos/COEN317MapRMaster/COEN317MapRMaster/SaveServerIP.py";
 	public static final String GREETING = "Hello I must be going.\r\n";
@@ -46,10 +47,11 @@ public class NewConnectionListenerThread implements Runnable {
 	
 	
 	
-	public NewConnectionListenerThread (List<Chunk> all,List<Chunk> sent,List<Chunk> processed) {
+	public NewConnectionListenerThread (List<Chunk> all,List<Chunk> sent,List<Chunk> processed,List<Chunk> remaining) {
 		this.allFileChunksList = all;
 		this.sentFileChunksList = sent;
 		this.processedFileChunksList = processed;
+		this.remainingFileChunksList = remaining;
 	}
 	
 	public void start () {
@@ -91,7 +93,7 @@ public class NewConnectionListenerThread implements Runnable {
 		  
 		  try {
 			  while (true) {
-			      System.out.println("Waiting for New mobile");
+			     // System.out.println("Waiting for New mobile");
 	
 			      SocketChannel sc;
 				

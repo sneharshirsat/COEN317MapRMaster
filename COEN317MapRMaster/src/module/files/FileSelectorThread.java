@@ -33,6 +33,8 @@ public class FileSelectorThread implements Runnable {
 	private List<Chunk> allFileChunksList;
 	private List<Chunk> sentFileChunksList;
 	private List<Chunk> processedFileChunksList;
+	private List<Chunk> remainingFileChunksList;
+	
 	// = new ArrayList<Chunk>();
 	
 	
@@ -44,6 +46,8 @@ public class FileSelectorThread implements Runnable {
 		this.allFileChunksList = new ArrayList<Chunk>();
 		this.sentFileChunksList = new ArrayList<Chunk>();
 		this.processedFileChunksList = new ArrayList<Chunk>();
+		this.remainingFileChunksList = new ArrayList<Chunk>();
+		
 		
 	}
 	
@@ -76,7 +80,7 @@ public class FileSelectorThread implements Runnable {
     		System.out.println("File not selected");
     	}
     	
-    	new NewConnectionListenerThread(allFileChunksList,sentFileChunksList,processedFileChunksList).start(); 
+    	new NewConnectionListenerThread(allFileChunksList,sentFileChunksList,processedFileChunksList,remainingFileChunksList).start(); 
     	
 	}
 	
@@ -128,6 +132,7 @@ public class FileSelectorThread implements Runnable {
             		String chunkFileName = chunkPath +chunkNumer +".txt";
             		//Add newly created chunk to the list
             		allFileChunksList.add(new Chunk(chunkFileName,chunkNumer));
+            		remainingFileChunksList.add(new Chunk(chunkFileName,chunkNumer));
             	}
 			}
 			writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
